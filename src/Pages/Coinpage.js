@@ -13,7 +13,7 @@ import {
 import {
   useParams
 } from "react-router-dom";
-import ReactHtmlParser from "react-html-parser";
+import parse from "html-react-parser";
 import CoinInfo from "../components/CoinInfo";
 import {
   SingleCoin
@@ -175,7 +175,7 @@ const CoinPage = () => {
           {coin?.name}
         </Typography>
         <Typography variant="subtitle1" className={classes.description}>
-          {ReactHtmlParser(coin?.description.en.split(". ")[0])}.
+          {parse(coin?.description.en.split(". ")[0])}
         </Typography>
         <div className={classes.marketData}>
           <span style={{ display: "flex" }}>
