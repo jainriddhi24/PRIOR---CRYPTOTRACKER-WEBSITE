@@ -1,3 +1,4 @@
+import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import {  makeStyles } from "@material-ui/core";
 import './App.css';
@@ -24,9 +25,9 @@ function App() {
       <div className={classes.App}>
         <Header />
         <Routes>
-          
-          <Route path="/" element={<Homepage/>} exact />
-          <Route path="/coins/:id" element={<Coinpage/>} exact />
+          <Route path="/" element={<Homepage/>} />  
+          <Route path="/coins/:id" element={<Coinpage/>} />
+          <Route path="*" element={<h1>404 Page not</h1> }/>
           
         </Routes>
       </div>

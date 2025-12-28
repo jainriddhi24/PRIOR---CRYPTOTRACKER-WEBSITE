@@ -53,12 +53,25 @@ const CryptoContext = ({ children }) => {
 
   const fetchCoins = async () => {
     setLoading(true);
-    const { data } = await axios.get(CoinList(currency));
-    console.log(data);
-
-    setCoins(data);
-    setLoading(false);
+    try {
+      const { data } = await axios.get(CoinList(currency));
+      console.log(data);
+      setCoins(data);
+    } catch (error) {
+      console.error("Error fetching coins:", error);
+      setAlert({
+        open: true,
+        message: "Error fetching coins data",
+        type: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchCoins();
+  }, [currency]);
 
   useEffect(() => {
     if (currency === "INR") setSymbol("₹");

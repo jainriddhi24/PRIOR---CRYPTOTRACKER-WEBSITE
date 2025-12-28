@@ -4,10 +4,10 @@ import CoinsTable from '../components/CoinsTable';
 
 const Homepage = () => {
     return (
-        <div>
+        <>
            <Banner/>
            <CoinsTable/>
-        </div>
+        </>
     )
 }
 

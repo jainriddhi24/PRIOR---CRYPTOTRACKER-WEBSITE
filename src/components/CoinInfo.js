@@ -1,8 +1,8 @@
+import React from "react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { HistoricalChart } from "../config/api";
 import { Line } from "react-chartjs-2";
-import Chart from "chart.js/auto";
 import {
   CircularProgress,
   createTheme,
@@ -40,17 +40,21 @@ const CoinInfo = ({ coin }) => {
   const classes = useStyles();
 
   const fetchHistoricData = async () => {
-    const { data } = await axios.get(HistoricalChart(coin.id, days, currency));
-    setflag(true);
-    setHistoricData(data.prices);
+    try {
+      const { data } = await axios.get(HistoricalChart(coin.id, days, currency));
+      setHistoricData(data.prices);
+      setflag(true);
+    } catch (error) {
+      console.error("Error fetching historic data:", error);
+      setflag(true);
+    }
   };
 
-  console.log(coin);
-
   useEffect(() => {
-    fetchHistoricData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [days]);
+    if (coin) {
+      fetchHistoricData();
+    }
+  }, [days, currency, coin.id]);
 
   const lightTheme = createTheme({
     palette: {
@@ -64,7 +68,7 @@ const CoinInfo = ({ coin }) => {
   return (
     <ThemeProvider theme={lightTheme}>
       <div className={classes.container}>
-        {!historicData | flag===false ? (
+        {!historicData || flag===false ? (
           <CircularProgress
             style = {
               {

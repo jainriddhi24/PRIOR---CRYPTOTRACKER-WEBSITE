@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Button,
   LinearProgress,
@@ -33,19 +34,25 @@ const CoinPage = () => {
   const { currency, symbol, user, watchlist, setAlert } = CryptoState();
 
   const fetchCoin = async () => {
-    const {
-      data
-    } = await axios.get(SingleCoin(id));
-
-    setCoin(data);
+    try {
+      const {
+        data
+      } = await axios.get(SingleCoin(id));
+      setCoin(data);
+    } catch (error) {
+      console.error("Error fetching coin:", error);
+      setAlert({
+        open: true,
+        message: "Error fetching coin data",
+        type: "error",
+      });
+    }
   };
-
-  
 
   useEffect(() => {
     fetchCoin();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [id]);
 
   const useStyles = makeStyles((theme) => ({
     container: {
