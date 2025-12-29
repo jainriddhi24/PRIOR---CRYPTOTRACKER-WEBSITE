@@ -1,6 +1,6 @@
 {
   "name": "prior-cryptotracker",
-  "homepage": "https://iblal.github.io/CryptoWatch/",
+  "homepage": "./",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

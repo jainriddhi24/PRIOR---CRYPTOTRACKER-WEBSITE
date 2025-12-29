@@ -18,7 +18,36 @@ const CryptoContext = ({ children }) => {
     meassage: "",
     type: "success",
   });
-  const [watchlist, setWatchlist] = useState([])
+  const [watchlist, setWatchlist] = useState([]);
+
+  // eslint-disable-next-line no-loop-func
+  const fetchCoinsWithRetry = async (currency, maxRetries = 3) => {
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        const { data } = await axios.get(CoinList(currency), {
+          timeout: 10000,
+        });
+        return data;
+      } catch (error) {
+        const retriesLeft = maxRetries - attempt - 1;
+        console.error(`Error fetching coins (${retriesLeft} retries left):`, error.message);
+
+        if (retriesLeft === 0) {
+          throw error;
+        }
+
+        if (error.response?.status === 429) {
+          // Rate limited - wait longer with exponential backoff
+          const delayTime = Math.min(1000 * Math.pow(2, attempt), 5000);
+          console.log(`Rate limited. Waiting ${delayTime}ms before retry...`);
+          await new Promise(resolve => setTimeout(resolve, delayTime));
+        } else {
+          // Other errors - wait a bit before retry
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+      }
+    }
+  };
 
   useEffect(() => {
     if (user) {
@@ -54,14 +83,19 @@ const CryptoContext = ({ children }) => {
   const fetchCoins = useCallback(async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get(CoinList(currency));
+      const data = await fetchCoinsWithRetry(currency);
       console.log(data);
       setCoins(data);
+      setAlert({
+        open: false,
+        message: "",
+        type: "success",
+      });
     } catch (error) {
       console.error("Error fetching coins:", error);
       setAlert({
         open: true,
-        message: "Error fetching coins data",
+        message: "Unable to fetch coins data. Please try again later.",
         type: "error",
       });
     } finally {

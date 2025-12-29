@@ -33,19 +33,40 @@ const CoinPage = () => {
 
   const { currency, symbol, user, watchlist, setAlert } = CryptoState();
 
+  // eslint-disable-next-line no-loop-func
   const fetchCoin = async () => {
-    try {
-      const {
-        data
-      } = await axios.get(SingleCoin(id));
-      setCoin(data);
-    } catch (error) {
-      console.error("Error fetching coin:", error);
-      setAlert({
-        open: true,
-        message: "Error fetching coin data",
-        type: "error",
-      });
+    const maxRetries = 3;
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        const { data } = await axios.get(SingleCoin(id), {
+          timeout: 10000,
+        });
+        setCoin(data);
+        return; // Success, exit function
+      } catch (error) {
+        const retriesLeft = maxRetries - attempt - 1;
+        console.error(`Error fetching coin (${retriesLeft} retries left):`, error.message);
+
+        if (retriesLeft === 0) {
+          // All retries failed
+          setAlert({
+            open: true,
+            message: "Error fetching coin data. Please try again later.",
+            type: "error",
+          });
+          return;
+        }
+
+        if (error.response?.status === 429) {
+          // Rate limited - wait longer with exponential backoff
+          const delayTime = Math.min(1000 * Math.pow(2, attempt), 5000);
+          console.log(`Rate limited. Waiting ${delayTime}ms before retry...`);
+          await new Promise(resolve => setTimeout(resolve, delayTime));
+        } else {
+          // Other errors - wait a bit before retry
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+      }
     }
   };
 

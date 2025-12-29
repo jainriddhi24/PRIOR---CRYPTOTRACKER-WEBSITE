@@ -4,6 +4,16 @@ import { useEffect, useState, useCallback } from "react";
 import { HistoricalChart } from "../config/api";
 import { Line } from "react-chartjs-2";
 import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import {
   CircularProgress,
   createTheme,
   makeStyles,
@@ -13,11 +23,12 @@ import SelectButton from "./SelectButton";
 import { chartDays } from "../config/data";
 import { CryptoState } from "../CryptoContext";
 
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+
 const CoinInfo = ({ coin }) => {
   const [historicData, setHistoricData] = useState();
   const [days, setDays] = useState(1);
   const { currency } = CryptoState();
-  const [flag,setflag] = useState(false);
 
   const useStyles = makeStyles((theme) => ({
     container: {
@@ -43,10 +54,8 @@ const CoinInfo = ({ coin }) => {
     try {
       const { data } = await axios.get(HistoricalChart(coin.id, days, currency));
       setHistoricData(data.prices);
-      setflag(true);
     } catch (error) {
       console.error("Error fetching historic data:", error);
-      setflag(true);
     }
   }, [coin.id, days, currency]);
 
@@ -68,7 +77,7 @@ const CoinInfo = ({ coin }) => {
   return (
     <ThemeProvider theme={lightTheme}>
       <div className={classes.container}>
-        {!historicData || flag===false ? (
+        {!historicData ? (
           <CircularProgress
             style = {
               {
@@ -118,9 +127,7 @@ const CoinInfo = ({ coin }) => {
               {chartDays.map((day) => (
                 <SelectButton
                   key={day.value}
-                  onClick={() => {setDays(day.value);
-                    setflag(false);
-                  }}
+                  onClick={() => setDays(day.value)}
                   selected={day.value === days}
                 >
                   {day.label}
