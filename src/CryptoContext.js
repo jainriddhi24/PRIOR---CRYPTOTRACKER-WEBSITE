@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { CoinList } from "./config/api";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "./firebase";
@@ -51,7 +51,7 @@ const CryptoContext = ({ children }) => {
 
   
 
-  const fetchCoins = async () => {
+  const fetchCoins = useCallback(async () => {
     setLoading(true);
     try {
       const { data } = await axios.get(CoinList(currency));
@@ -67,11 +67,11 @@ const CryptoContext = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currency]);
 
   useEffect(() => {
     fetchCoins();
-  }, [currency]);
+  }, [fetchCoins]);
 
   useEffect(() => {
     if (currency === "INR") setSymbol("₹");

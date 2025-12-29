@@ -167,7 +167,7 @@ const CoinPage = () => {
       <div className={classes.sidebar}>
         <img
           src={coin?.image.large}
-          alt={coin?.name}
+          alt=""
           height="200"
           style={{ marginBottom: 20 }}
         />

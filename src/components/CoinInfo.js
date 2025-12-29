@@ -1,6 +1,6 @@
 import React from "react";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { HistoricalChart } from "../config/api";
 import { Line } from "react-chartjs-2";
 import {
@@ -39,7 +39,7 @@ const CoinInfo = ({ coin }) => {
 
   const classes = useStyles();
 
-  const fetchHistoricData = async () => {
+  const fetchHistoricData = useCallback(async () => {
     try {
       const { data } = await axios.get(HistoricalChart(coin.id, days, currency));
       setHistoricData(data.prices);
@@ -48,13 +48,13 @@ const CoinInfo = ({ coin }) => {
       console.error("Error fetching historic data:", error);
       setflag(true);
     }
-  };
+  }, [coin.id, days, currency]);
 
   useEffect(() => {
     if (coin) {
       fetchHistoricData();
     }
-  }, [days, currency, coin.id]);
+  }, [coin, fetchHistoricData]);
 
   const lightTheme = createTheme({
     palette: {
